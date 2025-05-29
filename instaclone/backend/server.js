@@ -17,6 +17,62 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Database helper functions using Supabase
+async function getAllPosts() {
+    const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+}
+
+async function getPostById(id) {
+    const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
+async function createPost(caption, imageUrl) {
+    const { data, error } = await supabase
+        .from('posts')
+        .insert([{ caption, image_url: imageUrl }])
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
+async function updatePost(id, caption, imageUrl) {
+    const { data, error } = await supabase
+        .from('posts')
+        .update({ caption, image_url: imageUrl })
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
+async function deletePost(id) {
+    const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', id);
+
+    if (error) throw error;
+    return true;
+}
+
+
 // Test route
 app.get('/', (req, res) => {
     res.json({ message: 'InstaClone API is running with Supabase!' });
