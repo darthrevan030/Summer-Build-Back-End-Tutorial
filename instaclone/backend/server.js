@@ -78,6 +78,99 @@ app.get('/', (req, res) => {
     res.json({ message: 'InstaClone API is running with Supabase!' });
 });
 
+// Routes
+// GET all posts
+app.get('/posts', async (req, res) => {
+    try {
+        const posts = await getAllPosts();
+        res.json({ success: true, posts });
+    } catch (error) {
+        console.error('Error getting posts:', error);
+        res.status(500).json({ success: false, error: 'Failed to get posts' });
+    }
+});
+
+// GET single post by ID
+app.get('/posts/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const post = await getPostById(id);
+
+    if (!post) {
+        return res.status(404).json({ success: false, error: 'Post not found' });
+    }
+
+    res.json({ success: true, post });
+    } catch (error) {
+        console.error('Error getting post:', error);
+        res.status(500).json({ success: false, error: 'Failed to get post' });
+    }
+});
+
+// POST create new post
+app.post('/posts', async (req, res) => {
+    try {
+        const { caption, image_url } = req.body;
+
+        if (!caption || !image_url) {
+            return res.status(400).json({
+                success: false,
+                error: 'Caption and image_url are required'
+        });
+        }
+
+        const newPost = await createPost(caption, image_url);
+        res.status(201).json({ success: true, post: newPost });
+    } catch (error) {
+        console.error('Error creating post:', error);
+        res.status(500).json({ success: false, error: 'Failed to create post' });
+    }
+});
+
+// PUT update post
+app.put('/posts/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { caption, image_url } = req.body;
+
+        if (!caption || !image_url) {
+            return res.status(400).json({
+                success: false,
+                error: 'Caption and image_url are required'
+            });
+        }
+
+        const updatedPost = await updatePost(id, caption, image_url);
+
+        if (!updatedPost) {
+            return res.status(404).json({ success: false, error: 'Post not found' });
+        }
+
+        res.json({ success: true, post: updatedPost });
+    } catch (error) {
+        console.error('Error updating post:', error);
+        res.status(500).json({ success: false, error: 'Failed to update post' });
+    }
+});
+
+// DELETE post
+app.delete('/posts/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Check if post exists first
+        const existingPost = await getPostById(id);
+        if (!existingPost) {
+            return res.status(404).json({ success: false, error: 'Post not found' });
+        }
+
+        await deletePost(id);
+        res.json({ success: true, message: 'Post deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        res.status(500).json({ success: false, error: 'Failed to delete post' });
+    }
+});
 
 // Test Supabase connection
 app.get('/test-db', async (req, res) => {
