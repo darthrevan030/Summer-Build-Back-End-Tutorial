@@ -158,6 +158,14 @@ app.delete('/posts/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
+        // Validate that id is a number
+        if (!id || isNaN(id)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Invalid post ID. Must be a number.' 
+            });
+}
+
         // Check if post exists first
         const existingPost = await getPostById(id);
         if (!existingPost) {
