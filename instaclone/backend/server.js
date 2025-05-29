@@ -78,18 +78,19 @@ app.get('/', (req, res) => {
     res.json({ message: 'InstaClone API is running with Supabase!' });
 });
 
+
 // Test Supabase connection
 app.get('/test-db', async (req, res) => {
     try {
         const { data, error } = await supabase
-        .from('posts')
-        .select('count', { count: 'exact' });
+            .from('posts')
+            .select('count', { count: 'exact' });
 
     if (error) throw error;
 
     res.json({
         message: 'Supabase connected successfully!',
-        posts_count: data.length
+        posts_count: data[0].count
     });
     } catch (error) {
     console.error('Supabase connection error:', error);
